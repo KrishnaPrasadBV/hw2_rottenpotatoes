@@ -10,7 +10,11 @@ gem 'linecache19', :git => 'git://github.com/mark-moseley/linecache'
 # for Heroku deployment - as described in Ap. A of ELLS book
 group :development, :test do
   gem 'sqlite3'
-  gem 'ruby-debug19', :require => 'ruby-debug'
+  if RUBY_VERSION =~ /1.9/
+	gem 'ruby-debug19'
+  else
+  	gem 'ruby-debug'
+  end
 end
 group :production do
   gem 'pg'
