@@ -7,10 +7,21 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.get_ratings()
     @sort = params[:sort]
-    if @sort == "title"
+    commit = params[:commit]
+    @ratings = (params[:ratings])
+    if commit == 'Refresh' and @ratings != nil
+	@movies = Movie.where(:rating => @ratings.keys)
+	return
+    end
+    if @sort == "title" and @ratings != nil
+	@movies = Movie.where(:rating => @ratings.keys).order("title")
+    elsif @sort == "title" and @ratings == nil
 	@movies = Movie.find(:all,:order => "title")
-    elsif @sort == "date"
+    elsif @sort == "date" and @ratings != nil
+	@movies = Movie.where(:rating => @ratings.keys).order("release_date")	
+    elsif @sort == "date" and @ratings == nil
 	@movies = Movie.find(:all,:order => "release_date")
     else
     	@movies = Movie.all
