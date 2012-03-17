@@ -65,13 +65,15 @@ class MoviesController < ApplicationController
 		session[:sort] = "date"
 		@ratings = session[:ratings]
 	end
+    elsif @sort == nil and @ratings != nil
+	@movies = Movie.where(:rating => @ratings.keys)
     else
 	if (session[:sort] != nil and session[:ratings] == nil)
-		redirect_to movies_path(:sort => '#{session[:sort]}')
+		redirect_to movies_path(:sort => session[:sort])
 	elsif (session[:sort] == nil and session[:ratings] != nil)
-		redirect_to movies_path(:ratings => '#{session[:ratings]}')
+		redirect_to movies_path(:ratings => session[:ratings])
 	elsif (session[:sort] != nil and session[:ratings] != nil)
-		redirect_to movies_path(:sort => "#{session[:sort]}",:ratings => "ratings=#{session[:ratings]}")
+		redirect_to movies_path(:sort => session[:sort],:ratings => session[:ratings])
 	else
     		@movies = Movie.all
 		session[:sort] = nil
