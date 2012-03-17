@@ -9,13 +9,22 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.get_ratings()
     @sort = params[:sort]
-    if @sort == nil
-	@sort = session[:sort]
-    end
     commit = params[:commit]
     @ratings = (params[:ratings])
+    if @sort == nil and @ratings == nil and commit != 'Refresh'
+	if session[:sort] != nil and session[:ratings] != nil
+		redirect_to movies_path(:sort => session[:sort],:ratings => session[:ratings])
+	elsif session[:sort] == nil and session[:ratings] != nil
+		redirect_to movies_path(:sort => session[:sort],:ratings => session[:ratings])
+	elsif session[:sort] != nil and session[:ratings] == nil
+		redirect_to movies_path(:sort => session[:sort])
+	end
+    end
     if @ratings == nil and commit != 'Refresh'
 	@ratings = session[:ratings]
+    end
+    if @sort == nil
+	@sort = session[:sort]
     end
     if commit == 'Refresh' and @ratings != nil
 	session[:ratings] = @ratings
