@@ -9,22 +9,74 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.get_ratings()
     @sort = params[:sort]
+    if @sort == nil
+	@sort = session[:sort]
+    end
     commit = params[:commit]
     @ratings = (params[:ratings])
+    if @ratings == nil and commit != 'Refresh'
+	@ratings = session[:ratings]
+    end
     if commit == 'Refresh' and @ratings != nil
-	@movies = Movie.where(:rating => @ratings.keys)
+	session[:ratings] = @ratings
+	if @sort == nil
+            @movies = Movie.where(:rating => @ratings.keys)
+	elsif @sort == "title"
+	    @movies = Movie.where(:rating => @ratings.keys).order("title")
+	elsif @sort == "date"
+	    @movies = Movie.where(:rating => @ratings.keys).order("release_date")
+	end
+	return
+    end
+    if commit == 'Refresh' and @ratings == nil
+	if @sort == nil
+            @movies = Movie.find(:all)
+	elsif @sort == "title"
+	    @movies = Movie.find(:all,:order => "title")
+	elsif @sort == "date"
+	    @movies = Movie.find(:all,:order => "release_date")
+	end
+	session[:ratings] = nil
 	return
     end
     if @sort == "title" and @ratings != nil
 	@movies = Movie.where(:rating => @ratings.keys).order("title")
+	session[:sort] = "title"
+	session[:ratings] = @ratings
     elsif @sort == "title" and @ratings == nil
-	@movies = Movie.find(:all,:order => "title")
+	if (session[:ratings] == nil)
+		@movies = Movie.find(:all,:order => "title")
+		session[:sort] = "title"
+	else
+		@movies = Movie.where(:rating => session[:ratings].keys).order("title")
+		session[:sort] = "title"
+		@ratings = session[:ratings]
+	end
     elsif @sort == "date" and @ratings != nil
-	@movies = Movie.where(:rating => @ratings.keys).order("release_date")	
+	@movies = Movie.where(:rating => @ratings.keys).order("release_date")
+	session[:sort] = "date"
+	session[:ratings] = @ratings	
     elsif @sort == "date" and @ratings == nil
-	@movies = Movie.find(:all,:order => "release_date")
+	if (session[:ratings] == nil)
+		@movies = Movie.find(:all,:order => "release_date")
+		session[:sort] = "date"
+	else
+		@movies = Movie.where(:rating => session[:ratings].keys).order("release_date")
+		session[:sort] = "date"
+		@ratings = session[:ratings]
+	end
     else
-    	@movies = Movie.all
+	if (session[:sort] != nil and session[:ratings] == nil)
+		redirect_to movies_path(:sort => '#{session[:sort]}')
+	elsif (session[:sort] == nil and session[:ratings] != nil)
+		redirect_to movies_path(:ratings => '#{session[:ratings]}')
+	elsif (session[:sort] != nil and session[:ratings] != nil)
+		redirect_to movies_path(:sort => "#{session[:sort]}",:ratings => "ratings=#{session[:ratings]}")
+	else
+    		@movies = Movie.all
+		session[:sort] = nil
+		session[:ratings] = nil
+	end
     end
   end
 

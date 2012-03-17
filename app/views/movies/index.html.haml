@@ -5,7 +5,7 @@
   - @all_ratings.each do |rating|
     = rating
     - if @ratings == nil
-      = check_box_tag "ratings[#{rating}]", :id => "ratings_#{rating}"
+      = check_box_tag "ratings[#{rating}]", :value => 0, :id => "ratings_#{rating}"
     - else
       = check_box_tag "ratings[#{rating}]" , true, @ratings.keys.include?("#{rating}"), :id => "ratings_#{rating}"
   = submit_tag 'Refresh', :id => 'ratings_submit'
